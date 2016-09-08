@@ -1,35 +1,43 @@
-var enabled = 1;
-
-function updateIcon(toggle) {
-  if (toggle == "on") {
-    chrome.browserAction.setIcon({path:"32.png"});
-  }
-  else if (toggle == "off") {
-    chrome.browserAction.setIcon({path:"off.png"});
-  }
-}
-
-chrome.browserAction.onClicked.addListener(function(tab) {
-  if (enabled == 1) {
-    updateIcon("off");
-    enabled = 0;
-  }
-  else if (enabled == 0) {
-    updateIcon("on");
-    enabled = 1;
-  }
-  //Send button state to any Testia Tarantula tab
-  chrome.tabs.query({title: "Testia Tarantula"}, function(tabs) {
-    for (var i=0; i<tabs.length; ++i) {
-      chrome.tabs.sendMessage(tabs[i].id, {msg: enabled});
+// Receives notification info from content script
+chrome.runtime.onMessage.addListener(
+  function(msg, sender) {
+    if (msg.msg == "clearNotifications") {
+      chrome.notifications.getAll(function(notifications) {
+        if (Object.getOwnPropertyNames(notifications).length != 0) {
+          notificationID = Object.keys(notifications)[0];
+          chrome.notifications.clear(notificationID);
+        }
+      })
     }
-  });
+    else {
+      chrome.notifications.getAll(function(notifications) {
+        if (Object.getOwnPropertyNames(notifications).length === 0) {
+          createNotification(msg.msg.description, msg.msg);
+        }
+        else {
+          notificationID = Object.keys(notifications)[0];
+          updateNotification(notificationID, msg.msg);
+        }
+      })
+    }
 });
 
-//Sends button state when requested from content script
-chrome.runtime.onMessage.addListener(
-  function(request, sender, sendResponse) {
-    if (request.msg == "btn_state") {
-      sendResponse({msg: enabled});
-    }
-  });
+chrome.notifications.onButtonClicked.addListener(viewBtnClick);
+
+function viewBtnClick() {
+  gotoTab("https://sabotage.internal.mx/");
+}
+
+function gotoTab(url) {
+  tabID = chrome.tabs.query({ url: url }, function(tabs) {
+    chrome.tabs.update(tabs[0].id, { selected: true });
+  })
+}
+
+function createNotification(id, opt) {
+  chrome.notifications.create(id, opt);
+}
+
+function updateNotification(id, opt) {
+  chrome.notifications.update(id, opt);
+}
