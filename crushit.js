@@ -1,35 +1,41 @@
 var $j = jQuery.noConflict();
 
-$j(function() {
-    main();
-  // Check list every 5 seconds
-  setInterval(function() {
-    main();
-  }, 5000);
-})
+main();
+
+var observer = new MutationObserver(main);
+var objConfig = {
+  childList: true,
+  subtree: false,
+  attributes: false,
+  characterData: false
+};
+
+observer.observe(findQueue("Verification Queue")[0], objConfig);
+observer.observe(findQueue("Production Queue")[0], objConfig);
 
 function main() {
-  var queues = ["Verification Queue", "Production Queue"];
+    var queues = ["Verification Queue", "Production Queue"];
+    var notificationItems = [];
 
-  var notificationItems = [];
+    queues.forEach(function(queue) {
+      domQueue = findQueue(queue);
+      deployItems = domQueue.find(" > div");
 
-  queues.forEach(function(queue) {
-    domQueue = findQueue(queue);
-    deployItems = domQueue.find(" > div");
-
-    deployItems.each(function( i, item ) {
-      if (isWorkable(item) === true) {
-        markItem(item);
-        notificationItems.push(buildNotification(item, queue));
-      }
+      deployItems.each(function( i, item ) {
+        if (isWorkable(item) === true) {
+          markItem(item);
+          notificationItems.push(buildNotification(item, queue));
+        }
+      })
     })
-  })
-  if (notificationItems.length === 0) {
-    chrome.runtime.sendMessage({msg: "clearNotifications"});
-  }
-  else {
-    createNotification(notificationItems);
-  }
+
+    if (notificationItems.length === 0) {
+
+      chrome.runtime.sendMessage({msg: "clearNotifications"});
+    }
+    else {
+      createNotification(notificationItems);
+    }
 }
 
 function markItem(item) {
@@ -39,7 +45,7 @@ function markItem(item) {
 }
 
 function buildNotification(item, queueName) {
-  description = $j(item).find(" > div ").first().text();
+  description = $j(item).find(" > div ").first().text().trim();
 
   return {
     title: description,

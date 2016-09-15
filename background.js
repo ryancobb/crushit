@@ -1,6 +1,3 @@
-var opts = {};
-var closedOpts = {};
-
 chrome.runtime.onMessage.addListener(
   function(msg, sender) {
     if (msg.msg == "clearNotifications") {
@@ -12,32 +9,31 @@ chrome.runtime.onMessage.addListener(
       })
     }
     else {
-      // Store opts to compare against the last closed notifications options.
-      // If the new options are the same as the last closed options, don't
-      // display the notification.
-      opts = msg.msg;
+      var opts = msg.msg;
 
-      if ( !_.isEqual(opts, closedOpts) ) {
-        chrome.notifications.getAll(function(notifications) {
-          if (Object.getOwnPropertyNames(notifications).length === 0) {
-            createNotification(msg.msg.description, opts);
-          }
-          else {
-            notificationID = Object.keys(notifications)[0];
-            updateNotification(notificationID, opts);
-          }
-        })
-      }
+      chrome.notifications.getAll(function(notifications) {
+        if (Object.getOwnPropertyNames(notifications).length === 0) {
+          createNotification(opts.description, opts);
+        }
+        else {
+          notificationID = Object.keys(notifications)[0];
+          updateNotification(notificationID, opts);
+        }
+      })
+
     }
 });
 
 chrome.notifications.onButtonClicked.addListener(viewBtnClick);
 
-chrome.notifications.onClosed.addListener(storeClosed);
-
-function storeClosed() {
-  closedOpts = $.extend( true, {}, opts);
-}
+// Have to inject script since sabotage doesn't reload when going "back"
+chrome.webNavigation.onHistoryStateUpdated.addListener(function(details) {
+  chrome.tabs.query({url: "https://sabotage.internal.mx/"}, function(tab) {
+    if (Object.keys(tab).length !== 0) {
+      chrome.tabs.executeScript(null,{file:"crushit.js"});
+    }
+  })
+});
 
 function viewBtnClick() {
   gotoTab("https://sabotage.internal.mx/");
