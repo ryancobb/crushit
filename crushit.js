@@ -1,7 +1,14 @@
 var $j = jQuery.noConflict();
 
-// Check list every 5 seconds
-setInterval(function() {
+$j(function() {
+    main();
+  // Check list every 5 seconds
+  setInterval(function() {
+    main();
+  }, 5000);
+})
+
+function main() {
   var queues = ["Verification Queue", "Production Queue"];
 
   var notificationItems = [];
@@ -12,6 +19,7 @@ setInterval(function() {
 
     deployItems.each(function( i, item ) {
       if (isWorkable(item) === true) {
+        markItem(item);
         notificationItems.push(buildNotification(item, queue));
       }
     })
@@ -22,8 +30,13 @@ setInterval(function() {
   else {
     createNotification(notificationItems);
   }
+}
 
-}, 5000);
+function markItem(item) {
+  $j(item).css("background-color", "rgb(232, 96, 48)");
+  $j(item).children().css("color", "white");
+  $j(item).find("svg[type='edit']").css("fill", "white");
+}
 
 function buildNotification(item, queueName) {
   description = $j(item).find(" > div ").first().text();
@@ -51,13 +64,12 @@ function isWorkable(item) {
 }
 
 function createNotification(notificationItems) {
-  console.log("Creating notification");
   var opt = {
     type: "list",
     title: "A wild unpunched item has appeared!",
     message: "why",
     items: notificationItems,
-    iconUrl: "cat.jpg",
+    iconUrl: "assets/cat.jpg",
     buttons: [{
       title: 'View',
       iconUrl: "assets/open.png"
