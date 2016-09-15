@@ -43,7 +43,7 @@ function buildNotification(item, queueName) {
 
   return {
     title: description,
-    message: "In the " + queueName
+    message: queueName
   }
 }
 
