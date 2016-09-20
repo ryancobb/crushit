@@ -58,7 +58,7 @@ function findQueue(queue) {
 }
 
 function isWorkable(item) {
-  var nonWorkableEmojis = [ "punch.png", "shipit.png", "interrobang.png", "bangbang.png", "hourglass.png", "muscle.png" ];
+  var nonWorkableEmojis = [ "rocket.png", "punch.png", "shipit.png", "interrobang.png", "bangbang.png", "hourglass.png", "muscle.png" ];
   var workable = true;
 
   nonWorkableEmojis.forEach(function(emoji) {
