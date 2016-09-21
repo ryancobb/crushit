@@ -3,7 +3,7 @@
 
   "name": "Crushit",
   "description": "A notification extension for sabotage",
-  "version": "0.61",
+  "version": "0.62",
 
   "permissions": [
     "https://sabotage.internal.mx/",
