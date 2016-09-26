@@ -1,3 +1,6 @@
+var opts = "";
+var closedOpts = "";
+
 chrome.runtime.onMessage.addListener(
   function(msg, sender) {
     if (msg.msg == "clearNotifications") {
@@ -9,22 +12,26 @@ chrome.runtime.onMessage.addListener(
       })
     }
     else {
-      var opts = msg.msg;
+      opts = msg.msg;
 
-      chrome.notifications.getAll(function(notifications) {
-        if (Object.getOwnPropertyNames(notifications).length === 0) {
-          createNotification(opts.description, opts);
-        }
-        else {
-          notificationID = Object.keys(notifications)[0];
-          updateNotification(notificationID, opts);
-        }
-      })
-
+      // Don't create notification if user has already dismissed it.
+      if ( JSON.stringify(opts) !== JSON.stringify(closedOpts) ) {
+        chrome.notifications.getAll(function(notifications) {
+          if (Object.getOwnPropertyNames(notifications).length === 0) {
+            createNotification(opts.description, opts);
+          }
+          else {
+            notificationID = Object.keys(notifications)[0];
+            updateNotification(notificationID, opts);
+          }
+        })
+      }
     }
 });
 
 chrome.notifications.onButtonClicked.addListener(viewBtnClick);
+
+chrome.notifications.onClosed.addListener(storeClosedOpts);
 
 // Have to inject script since sabotage doesn't reload when going "back"
 chrome.webNavigation.onHistoryStateUpdated.addListener(function(details) {
@@ -34,6 +41,10 @@ chrome.webNavigation.onHistoryStateUpdated.addListener(function(details) {
     }
   })
 });
+
+function storeClosedOpts() {
+  closedOpts = opts;
+}
 
 function viewBtnClick() {
   gotoTab("https://sabotage.internal.mx/");
