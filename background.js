@@ -4,12 +4,8 @@ var closedOpts = "";
 chrome.runtime.onMessage.addListener(
   function(msg, sender) {
     if (msg.msg == "clearNotifications") {
-      chrome.notifications.getAll(function(notifications) {
-        if (Object.getOwnPropertyNames(notifications).length != 0) {
-          notificationID = Object.keys(notifications)[0];
-          chrome.notifications.clear(notificationID);
-        }
-      })
+      closeNotifications();
+      opts, closedOpts = ""
     }
     else {
       opts = msg.msg;
@@ -62,4 +58,14 @@ function createNotification(id, opt) {
 
 function updateNotification(id, opt) {
   chrome.notifications.update(id, opt);
+}
+
+function closeNotifications() {
+  chrome.notifications.getAll(function(notifications) {
+    if (Object.getOwnPropertyNames(notifications).length != 0) {
+      Object.keys(notifications).forEach(function(notificationID) {
+        chrome.notifications.clear(notificationID);
+      })
+    }
+  })
 }
