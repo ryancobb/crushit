@@ -3,7 +3,7 @@
 
   "name": "Crushit",
   "description": "A notification extension for sabotage",
-  "version": "0.80",
+  "version": "0.81",
 
   "permissions": [
     "https://po-qa-sabotage.moneydesktop.com/",
