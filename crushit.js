@@ -24,14 +24,12 @@ function main() {
       deployItems.each(function( i, item ) {
         if (isWorkable(item) === true) {
           get_highlight_pref(markItem, item);
-          // if (highlight_pref() == true) { markItem(item); }
           notificationItems.push(buildNotification(item, queue));
         }
       })
     })
 
     if (notificationItems.length === 0) {
-
       chrome.runtime.sendMessage({msg: "clearNotifications"});
     }
     else {
@@ -92,7 +90,6 @@ function get_notification_pref(callback, notificationItems) {
 
    chrome.storage.sync.get("notifications_on", function(items){
      notifications_on = items["notifications_on"];
-     console.log("Notifications Pref: ", notifications_on === "true")
      if (notifications_on === "true") {
        callback(notificationItems);
      }
@@ -104,7 +101,6 @@ function get_highlight_pref(callback, item) {
 
    chrome.storage.sync.get("highlight_on", function(items){
      highlight_on = items["highlight_on"];
-     console.log("Highlight Pref: ", highlight_on === "true")
      if (highlight_on === "true") {
        callback(item);
      }
