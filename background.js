@@ -49,6 +49,7 @@ function viewBtnClick() {
 function gotoTab(url) {
   tabID = chrome.tabs.query({ url: url }, function(tabs) {
     chrome.tabs.update(tabs[0].id, { selected: true });
+    chrome.windows.update(tabs[0].windowId, { focused: true });
   })
 }
 
